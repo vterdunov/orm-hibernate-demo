@@ -1,5 +1,7 @@
 package ru.mephi.orm_hibernate_demo.mapper;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.mapstruct.*;
 import ru.mephi.orm_hibernate_demo.dto.nested.CourseInfo;
 import ru.mephi.orm_hibernate_demo.dto.request.LessonRequest;
@@ -12,24 +14,27 @@ import java.util.List;
 import java.util.UUID;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface LessonMapper {
+public abstract class LessonMapper {
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Mapping(target = "course", source = "courseId", qualifiedByName = "courseIdToCourse")
     @Mapping(target = "primaryResource", source = "primaryResourceId", qualifiedByName = "resourceIdToResource")
-    Lesson toEntity(LessonRequest request);
+    public abstract Lesson toEntity(LessonRequest request);
 
     @Mapping(target = "course", source = "course", qualifiedByName = "courseToCourseInfo")
-    LessonResponse toResponse(Lesson lesson);
+    public abstract LessonResponse toResponse(Lesson lesson);
 
-    List<LessonResponse> toResponseList(List<Lesson> lessons);
+    public abstract List<LessonResponse> toResponseList(List<Lesson> lessons);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "course", ignore = true)
-    void updateEntityFromRequest(LessonRequest request, @MappingTarget Lesson lesson);
+    public abstract void updateEntityFromRequest(LessonRequest request, @MappingTarget Lesson lesson);
 
     @Named("courseToCourseInfo")
-    default CourseInfo courseToCourseInfo(Course course) {
+    protected CourseInfo courseToCourseInfo(Course course) {
         if (course == null) {
             return null;
         }
@@ -41,7 +46,7 @@ public interface LessonMapper {
     }
 
     @Named("courseIdToCourse")
-    default Course courseIdToCourse(UUID courseId) {
+    protected Course courseIdToCourse(UUID courseId) {
         if (courseId == null) {
             return null;
         }
@@ -51,10 +56,10 @@ public interface LessonMapper {
     }
 
     @Named("resourceIdToResource")
-    default LearningResource resourceIdToResource(UUID resourceId) {
+    protected LearningResource resourceIdToResource(UUID resourceId) {
         if (resourceId == null) {
             return null;
         }
-        return null;
+        return entityManager.getReference(LearningResource.class, resourceId);
     }
 }

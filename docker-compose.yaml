@@ -34,6 +34,7 @@ services:
       APP_DB_URL: jdbc:postgresql://postgres:5432/orm_hibernate_demo
       APP_DB_USERNAME: postgres
       APP_DB_PASSWORD: postgres
+      SPRING_PROFILES_ACTIVE: dev
     ports:
       - "8080:8080"
     networks:

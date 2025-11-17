@@ -1,14 +1,7 @@
 spring:
   datasource:
-    url: ${APP_DB_URL:jdbc:postgresql://localhost:5432/orm_hibernate_demo}
-    username: ${APP_DB_USERNAME:postgres}
-    password: ${APP_DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
   jpa:
-    hibernate:
-      ddl-auto: update
     properties:
       hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
-      hibernate.show_sql: true
-      hibernate.format_sql: true
     open-in-view: false

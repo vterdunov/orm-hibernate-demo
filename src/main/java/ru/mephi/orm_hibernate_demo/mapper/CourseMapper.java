@@ -1,5 +1,7 @@
 package ru.mephi.orm_hibernate_demo.mapper;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.mapstruct.*;
 import ru.mephi.orm_hibernate_demo.dto.nested.AuthorInfo;
 import ru.mephi.orm_hibernate_demo.dto.request.CourseRequest;
@@ -13,26 +15,28 @@ import java.util.List;
 import java.util.UUID;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface CourseMapper {
+public abstract class CourseMapper {
 
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Mapping(target = "author", source = "authorId", qualifiedByName = "authorIdToTeacher")
     @Mapping(target = "featuredResource", source = "featuredResourceId", qualifiedByName = "resourceIdToResource")
-    Course toEntity(CourseRequest request);
+    public abstract Course toEntity(CourseRequest request);
 
     @Mapping(target = "author", source = "author", qualifiedByName = "teacherToAuthorInfo")
-    CourseResponse toResponse(Course course);
+    public abstract CourseResponse toResponse(Course course);
 
-    CourseShortResponse toShortResponse(Course course);
+    public abstract CourseShortResponse toShortResponse(Course course);
 
-    List<CourseResponse> toResponseList(List<Course> courses);
+    public abstract List<CourseResponse> toResponseList(List<Course> courses);
 
-    List<CourseShortResponse> toShortResponseList(List<Course> courses);
+    public abstract List<CourseShortResponse> toShortResponseList(List<Course> courses);
 
-    void updateEntityFromRequest(CourseRequest request, @MappingTarget Course course);
+    public abstract void updateEntityFromRequest(CourseRequest request, @MappingTarget Course course);
 
     @Named("teacherToAuthorInfo")
-    default AuthorInfo teacherToAuthorInfo(Teacher teacher) {
+    protected AuthorInfo teacherToAuthorInfo(Teacher teacher) {
         if (teacher == null) {
             return null;
         }
@@ -45,7 +49,7 @@ public interface CourseMapper {
     }
 
     @Named("authorIdToTeacher")
-    default Teacher authorIdToTeacher(UUID authorId) {
+    protected Teacher authorIdToTeacher(UUID authorId) {
         if (authorId == null) {
             return null;
         }
@@ -55,10 +59,10 @@ public interface CourseMapper {
     }
 
     @Named("resourceIdToResource")
-    default LearningResource resourceIdToResource(UUID resourceId) {
+    protected LearningResource resourceIdToResource(UUID resourceId) {
         if (resourceId == null) {
             return null;
         }
-        return null;
+        return entityManager.getReference(LearningResource.class, resourceId);
     }
 }
