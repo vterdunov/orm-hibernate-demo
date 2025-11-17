@@ -55,4 +55,11 @@ public class TagRepository {
         Tag tag = findEntityById(id);
         entityManager.remove(tag);
     }
+
+    @Transactional
+    public void detachTagRelations(UUID tagId) {
+        entityManager.createNativeQuery("DELETE FROM course_tags WHERE tag_id = :tagId")
+                .setParameter("tagId", tagId)
+                .executeUpdate();
+    }
 }

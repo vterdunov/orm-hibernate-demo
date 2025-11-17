@@ -101,11 +101,12 @@ public class TagService {
     public void forceDelete(UUID id) {
         Tag tag = tagRepository.findEntityById(id);
 
-        tag.getCourses().forEach(course -> {
-            course.getTags().remove(tag);
-        });
+        tag.getCourses().forEach(course ->
+                course.getTags().removeIf(existing -> existing.getId().equals(tag.getId()))
+        );
         tag.getCourses().clear();
 
+        tagRepository.detachTagRelations(id);
         tagRepository.delete(id);
     }
 }

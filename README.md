@@ -1,5 +1,37 @@
 # ORM Hibernate (demo) — учебная система управления курсами
 
+## Команды и тестирование
+- Для локального запуска и разработки: `docker compose up -d postgres`
+- Запуск тестов (Testcontainers) `mvn clean verify`.
+- GitHub Actions workflow (`.github/workflows/ci.yml`) запускает `mvn -B verify` на каждый push/PR, гарантируя успешный прогон юнит- и интеграционных тестов (Testcontainers PostgreSQL).
+
+## Docker-образ
+
+1. Соберите и запустите весь стек через Docker Compose (образ соберётся автоматически):
+   ```bash
+   docker compose up -d --build app
+   ```
+   Compose поднимет PostgreSQL `postgres:18.1` и приложение, а сеть/переменные окружения уже настроены на совместную работу.
+2. Отслеживайте логи приложения:
+   ```bash
+   docker compose logs -f app
+   ```
+3. Остановите и удалите контейнеры (плюс volume с данными Postgres):
+   ```bash
+   docker compose down -v
+   ```
+   После старта API доступно на `http://localhost:8080`.
+
+## Переменные окружения
+
+Приложение читает параметры подключения к БД и профиль из переменных окружения (для Docker их можно задавать через `environment`):
+
+| Переменная | Назначение | Значение по умолчанию |
+| --- | --- | --- |
+| `SPRING_PROFILES_ACTIVE` | Активный Spring-профиль (`dev`, `test`, `prod`) | `dev` в Docker, иначе не задан |
+| `APP_DB_URL` | JDBC-URL БД для активного профиля | `jdbc:postgresql://localhost:5432/orm_hibernate_demo` |
+| `APP_DB_USERNAME` | Пользователь БД | `postgres` |
+| `APP_DB_PASSWORD` | Пароль БД | `postgres` |
 
 ## Единый формат ошибок API
 
@@ -32,40 +64,6 @@
 | Тег | `00000000-0000-0000-0000-000000000020` | `Spring` |
 
 Студент уже записан на курс, поэтому сразу можно тестировать уроки, задания и викторины.
-
-## Автоматизация
-
-- GitHub Actions workflow (`.github/workflows/ci.yml`) запускает `mvn -B verify` на каждый push/PR, гарантируя успешный прогон юнит- и интеграционных тестов (Testcontainers PostgreSQL).
-- Для локального запуска и разработки: `docker compose up -d postgres`
-- Запуск тестов (Testcontainers) `mvn clean verify`.
-
-## Docker-образ
-
-1. Соберите и запустите весь стек через Docker Compose (образ соберётся автоматически):
-   ```bash
-   docker compose up -d --build app
-   ```
-   Compose поднимет PostgreSQL `postgres:18.1` и приложение, а сеть/переменные окружения уже настроены на совместную работу.
-2. Отслеживайте логи приложения:
-   ```bash
-   docker compose logs -f app
-   ```
-3. Остановите и удалите контейнеры (плюс volume с данными Postgres):
-   ```bash
-   docker compose down -v
-   ```
-   После старта API доступно на `http://localhost:8080`.
-
-## Переменные окружения
-
-Приложение читает параметры подключения к БД и профиль из переменных окружения (для Docker их можно задавать через `environment`):
-
-| Переменная | Назначение | Значение по умолчанию |
-| --- | --- | --- |
-| `SPRING_PROFILES_ACTIVE` | Активный Spring-профиль (`dev`, `test`, `prod`) | `dev` в Docker, иначе не задан |
-| `APP_DB_URL` | JDBC-URL БД для активного профиля | `jdbc:postgresql://localhost:5432/orm_hibernate_demo` |
-| `APP_DB_USERNAME` | Пользователь БД | `postgres` |
-| `APP_DB_PASSWORD` | Пароль БД | `postgres` |
 
 ## Описание предметной области
 
