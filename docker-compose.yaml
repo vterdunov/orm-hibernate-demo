@@ -1,0 +1,48 @@
+services:
+  postgres:
+    container_name: orm-hibernate-demo-postgres
+    image: postgres:18.1
+    environment:
+      POSTGRES_DB: orm_hibernate_demo
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      PGDATA: /var/lib/postgresql/data/pgdata
+    networks:
+      - common-network
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      options:
+        max-size: "10m"
+
+  app:
+    container_name: orm-hibernate-demo-app
+    build:
+      context: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      APP_DB_URL: jdbc:postgresql://postgres:5432/orm_hibernate_demo
+      APP_DB_USERNAME: postgres
+      APP_DB_PASSWORD: postgres
+    ports:
+      - "8080:8080"
+    networks:
+      - common-network
+    restart: unless-stopped
+
+networks:
+  common-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
